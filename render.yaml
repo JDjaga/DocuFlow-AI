@@ -1,0 +1,104 @@
+# =====================================================================
+# DocuFlow AI - Render Blueprint
+#
+# Deploys TWO services from one repo:
+#   1. docuflow-backend  - FastAPI on Render's Python runtime
+#   2. docuflow-frontend - React build served as a static site
+#
+# HOW TO USE (Render dashboard)
+#   1. Push this repo to GitHub.
+#   2. Render dashboard -> New -> Blueprint -> pick the repo.
+#      Render reads THIS file and creates both services automatically.
+#   3. Fill in the "sync: false" secrets when prompted (or set them later
+#      under each service's Environment tab):
+#        - DATABASE_URL   -> your Postgres connection string (Neon/Supabase
+#                           free tier, or Render Postgres). REQUIRED -
+#                           Render's filesystem is ephemeral, so SQLite
+#                           data would be lost on every deploy.
+#        - SECRET_KEY     -> any long random string
+#        - GEMINI_API_KEY -> optional, enables Gemini as primary AI
+#        - OPENROUTER_API_KEY -> optional, cloud fallback AI
+#        - MOCK_AI        -> set "true" to run with zero API keys
+#   4. After the first deploy, copy the backend URL
+#      (https://docuflow-backend.onrender.com) into the frontend's
+#      VITE_API_URL env var and redeploy the frontend.
+#
+# FREE TIER NOTES
+#   - Web services sleep after ~15 min idle; the first request after
+#     sleep takes ~30-60s (cold start). This is normal on the free plan.
+#   - Use Neon (neon.tech) or Supabase for a free persistent Postgres -
+#     their DATABASE_URL looks like:
+#       postgresql://user:pass@host/dbname?sslmode=require
+#     IMPORTANT: the app expects SQLAlchemy format. Neon gives you
+#     postgresql://... - change it to postgresql+psycopg2://...
+# =====================================================================
+
+services:
+  # ------------------------- Backend -------------------------
+  - type: web
+    name: docuflow-backend
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # $PORT is injected by Render (usually 10000)
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: MOCK_AI
+        value: "false"
+      - key: AI_PROVIDER_PRIORITY
+        value: gemini,openrouter,ollama
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.8-flash
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: nvidia/nemotron-3-ultra-550b-a55b:free
+      - key: OPENROUTER_FALLBACK_MODELS
+        value: google/gemma-4-31b-it:free,baidu/ernie-5.5-flash-preview:free
+      - key: OPENROUTER_FREE_MODELS_ONLY
+        value: "true"
+      - key: OLLAMA_ENABLED
+        value: "false"
+      - key: EMBEDDING_PROVIDER
+        value: auto
+      - key: MAX_INPUT_CHARS
+        value: "40000"
+      - key: MAX_FILE_SIZE_MB
+        value: "10"
+      # IMPORTANT: after the frontend deploys, add its URL here, e.g.
+      #   https://docuflow-frontend.onrender.com
+      # then redeploy the backend.
+      - key: CORS_ORIGINS
+        sync: false
+
+  # ------------------------- Frontend ------------------------
+  - type: web
+    name: docuflow-frontend
+    runtime: static
+    rootDir: frontend
+    plan: free
+    buildCommand: npm ci --no-audit --no-fund && npm run build
+    staticPublishPath: dist
+    # SPA fallback: every unknown path serves index.html so React Router
+    # can handle /dashboard, /documents, etc. on refresh. API calls go
+    # directly to the backend domain via VITE_API_URL (CORS-enabled),
+    # so no /api rewrite is needed here.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Set AFTER the backend exists: https://docuflow-backend.onrender.com
+      # No /api suffix - the frontend adds it.
+      - key: VITE_API_URL
+        sync: false

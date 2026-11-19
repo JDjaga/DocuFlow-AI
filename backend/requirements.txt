@@ -1,0 +1,65 @@
+# =====================================================================
+# DocuFlow AI - Backend dependencies
+# Python 3.11+ (verified locally on Python 3.12)
+#
+#   pip install -r requirements.txt
+#
+# Optional extras are listed at the bottom - they are NOT required to
+# run the project in Mock AI mode with SQLite.
+# =====================================================================
+
+# ---------- Web framework ----------
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.34,<1.0
+python-multipart>=0.0.20
+
+# ---------- Database ----------
+sqlalchemy>=2.0,<3.0
+
+# ---------- Validation / configuration ----------
+pydantic>=2.10,<3.0
+pydantic-settings>=2.7,<3.0
+email-validator>=2.2
+
+# ---------- Authentication ----------
+python-jose[cryptography]>=3.3
+bcrypt>=4.0.1
+
+# ---------- Documents ----------
+pypdf>=5.0
+# pdfplumber understands PDF layout coordinates - it keeps table rows and
+# columns readable where plain pypdf text extraction would jumble them.
+pdfplumber>=0.11,<1.0
+
+# ---------- HTTP client ----------
+# Used by the OpenRouter and Ollama providers at RUNTIME, and by the
+# test suite (FastAPI TestClient) for HTTP assertions.
+httpx>=0.28
+
+# ---------- Real AI (Gemini) ----------
+# Needed only when MOCK_AI=false and GEMINI_API_KEY is set, but kept in
+# the main list so `pip install -r requirements.txt` is enough for
+# every mode the project supports.
+google-genai>=0.3.0,<1.0.0
+
+# ---------- Optional: local Hugging Face embeddings ----------
+# Only needed for EMBEDDING_PROVIDER=local (or "auto" without a Gemini
+# key). Install with:
+#   pip install sentence-transformers
+# sentence-transformers>=3.0
+
+# ---------- Database drivers ----------
+# psycopg2-binary powers PostgreSQL connections (docker-compose).
+# SQLite needs no driver - it is built into Python.
+psycopg2-binary>=2.9,<3.0
+
+# ---------- Database migrations ----------
+# Used by the alembic/ folder. The app also creates the initial schema
+# automatically on startup (create_all), so Alembic is for future changes.
+alembic>=1.14,<2.0
+
+# ---------- Environment ----------
+python-dotenv>=1.0
+
+# ---------- Testing ----------
+pytest>=8.3

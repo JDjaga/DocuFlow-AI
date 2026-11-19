@@ -1,0 +1,20 @@
+# =====================================================================
+# DocuFlow AI - frontend .dockerignore
+# node_modules and dist must NOT enter the build context: the image
+# installs its own dependencies and runs its own build.
+# =====================================================================
+
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+yarn-error.log*
+
+# Docs / CI / editor noise
+README.md
+documentation/
+.github/
+.vscode/
+.idea/
+.DS_Store
+*.log

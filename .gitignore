@@ -1,0 +1,47 @@
+# =====================================================================
+# DocuFlow AI - git ignore
+# Secrets, databases, dependencies and build output never get committed.
+# =====================================================================
+
+# --- Secrets / environment ---
+.env
+.env.local
+.env.*.local
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Backend runtime data ---
+backend/*.db
+backend/*.db-journal
+backend/*.db-wal
+backend/*.db-shm
+backend/data/
+backend/pytest_output.txt
+
+# --- Node / frontend ---
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+yarn-error.log*
+
+# --- Editors & OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# --- Logs / temp ---
+*.log
+tmp/
+.cache/
+build_output.txt

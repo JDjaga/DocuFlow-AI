@@ -1,0 +1,38 @@
+# =====================================================================
+# DocuFlow AI - backend .dockerignore
+# Keeps secrets, databases and local junk out of the Docker build
+# context -> smaller builds, faster uploads, nothing sensitive baked in.
+# =====================================================================
+
+# Secrets
+.env
+.env.*
+
+# Python caches / virtualenvs
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Local database (compose uses PostgreSQL, not this file)
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+data/
+
+# Tests are not needed inside the runtime image
+tests/
+
+# Docs and CI
+README.md
+documentation/
+.github/
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+*.log
