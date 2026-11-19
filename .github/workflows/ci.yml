@@ -108,3 +108,21 @@ jobs:
           name: frontend-dist
           path: frontend/dist
           retention-days: 7
+
+  # ------------------------- Docker image builds --------------------
+  # Proves both Dockerfiles actually build - this is the CI evidence for
+  # the Docker skills (multi-stage backend, nginx frontend). No push to
+  # a registry: building is enough to catch broken Dockerfiles.
+  docker-build:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker build -t docuflow-backend ./backend
+
+      - name: Build frontend image
+        run: docker build -t docuflow-frontend ./frontend
