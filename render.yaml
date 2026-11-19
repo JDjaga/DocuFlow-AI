@@ -82,11 +82,9 @@ services:
         sync: false
 
   # ------------------------- Frontend ------------------------
-  - type: web
+  - type: static
     name: docuflow-frontend
-    runtime: static
     rootDir: frontend
-    plan: free
     buildCommand: npm ci --no-audit --no-fund && npm run build
     staticPublishPath: dist
     # SPA fallback: every unknown path serves index.html so React Router
