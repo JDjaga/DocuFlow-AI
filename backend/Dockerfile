@@ -46,7 +46,6 @@ WORKDIR /app
 COPY app ./app
 COPY alembic ./alembic
 COPY alembic.ini .
-COPY pytest.ini .
 
 # Run as a non-root user (security best practice)
 RUN useradd --create-home --shell /bin/bash docuflow \
