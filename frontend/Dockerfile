@@ -26,8 +26,12 @@ RUN npm run build
 # ---------- Stage 2: serve with Nginx ----------
 FROM nginx:1.27-alpine AS runtime
 
-# Replace the default site with our SPA + API proxy configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# nginx docker image substitutes ${BACKEND_URL} from the environment at
+# container start (see /etc/nginx/templates in the official image).
+# Default keeps docker-compose working (service name "backend:8001");
+# Render overrides it with the public backend URL.
+ENV BACKEND_URL="http://backend:8001"
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 # Static build output from stage 1
 COPY --from=build /app/dist /usr/share/nginx/html
