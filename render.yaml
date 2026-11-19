@@ -82,8 +82,9 @@ services:
         sync: false
 
   # ------------------------- Frontend ------------------------
-  - type: static
+  - type: web
     name: docuflow-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: npm ci --no-audit --no-fund && npm run build
     staticPublishPath: dist
